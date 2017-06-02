@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>AngularJS with Spring Boot</title>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.2/angular.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.2/angular-resource.js"></script>
+<script type="text/javascript" src="/js/app.js"></script>
+</head>
+<body  bgcolor="pink" ng-app="myApp">
+     <h1 align="center">VENDOR MANAGEMENT SYSTEM</h1>
+   <div ng-controller="myCtrl">
+      <form name="myForm" onsubmit="return validateForm()">
+       <p> {{msg}}</p>
+          <table>
+         <tr>
+            <td>Vendor Id: </td>
+          <td><input type="number" name="id" ng-model="vid" required="required" autocomplete="off"/></td>
+          </tr>
+         <tr>
+         <td>Vendor Name:</td>
+        <td> <input type="text" name="name" ng-model="vname" required="required" autocomplete="off"/></td>
+         </tr>
+         <tr>
+         <td>Vendor Category: </td>
+         <td><input type="text" name="category" ng-model="vcate" required="required" autocomplete="off"/></td>
+         </tr>
+         <tr>
+         </tr>
+         <tr>
+         </tr>
+         <tr>
+         <td colspan="2"><input type="submit" data-ng-click="create()" id="Create" value="Add"/>
+         <input type="reset" data-ng-click="refresh()" id="Refresh" value="Reset"/>
+         <input type="submit" data-ng-click="deleteRec()" id="del" value="Delete"/>
+         <input type="submit" data-ng-click="update()" id="update" value="Update"/></td>
+         </tr>
+         <tr>
+           <td><input type="button" data-ng-click="getAllVendors()" id="get" value="Get All Vendors"/></td>
+          </tr> 
+             <table border="1">
+                  <tr>
+                  <th>vendor_id</th>
+                  <th>vendor_name</th>
+                  <th>vendor_category</th>
+                  </tr>
+                  <tr ng-repeat="row in vendors">
+                      <td><span ng-bind="row.id"></span></td>
+                      <td><span ng-bind="row.name"></span></td>
+                      <td><span ng-bind="row.category"></span></td>
+                      </tr>
+             </table>
+         </table>
+      </form>
+   </div>
+
+</body>
+</html>
