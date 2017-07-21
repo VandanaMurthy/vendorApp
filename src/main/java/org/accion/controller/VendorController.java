@@ -45,7 +45,7 @@ public class VendorController {
 		catch(Exception ex){
 			return "Error in deleting vendor: " + ex.toString();
 		}
-		return "Vendor deleted successfully";
+		return "Vendor deleted";
 	}
 	
 	@RequestMapping("/getByName")
