@@ -1,82 +1,114 @@
 package org.accion.controller;
 
+import java.util.Arrays;
+import java.util.List;
 import org.accion.entity.Vendor;
 import org.accion.service.VendorService;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+
+
+@RestController
+@RequestMapping("/vendor")
 public class VendorController {
+	
+	final static Logger logger = Logger.getLogger(VendorController.class);
 	@Autowired
 	private VendorService vs;
 	
-	@RequestMapping(value="/allVendors",method=RequestMethod.GET)
-	@ResponseBody
-	public Object index(){
-		return vs.findAll();
-	}
+
 	
-	@RequestMapping(value="/add",method=RequestMethod.PUT,consumes=MediaType.APPLICATION_JSON_VALUE)
-	@ResponseBody
-	public String add(@RequestBody Vendor ven){
-		try{
+	@RequestMapping(value="/add",method=RequestMethod.POST,headers = {"content-type=application/json"})
+	public ResponseEntity<Vendor> add(@RequestBody Vendor ven){
 			vs.save(ven);
+			logger.debug("Added: " + ven);
+			return new ResponseEntity<Vendor>(ven,HttpStatus.CREATED);
+			
 		}
-		catch(Exception e){
-			return "Error adding new vendor: "+e.toString();
-		}
-		return "Vendor added successfully";
-		
+	
+	
+	
+	@RequestMapping(value="/updateById/{id}",method=RequestMethod.PUT)
+	@ResponseBody
+	public ResponseEntity<Void> updateVendorById(@RequestBody Vendor ven,@PathVariable("id")int id){
+	Vendor vendor=vs.findById(ven.getId());
+	if(vendor == null){
+		logger.debug("Vendor with id " + ven.getId() + " does not exists");
+		return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+	}
+	else{
+		vs.save(ven);
+		return new ResponseEntity<Void>(HttpStatus.OK);
+	}
 	}
 	
-	@RequestMapping("/delete/{id}")
-	@ResponseBody
-	public String delete(@PathVariable int id){
-		try{
-			Vendor v1=vs.findById(id);
-			vs.delete(v1);
+	
+	@RequestMapping(value = "/getById/{id}", method = RequestMethod.GET)
+	public ResponseEntity<Vendor> getVendorById(@PathVariable("id") int id) {
+		Vendor ven = vs.findById(id);
+		if (ven == null) {
+			logger.debug("Vendor with id " + id + " does not exists");
+			return new ResponseEntity<Vendor>(HttpStatus.NOT_FOUND);
 		}
-		catch(Exception ex){
-			return "Error in deleting vendor: " + ex.toString();
+		logger.debug("Found Vendor:: " + ven);
+		return new ResponseEntity<Vendor>(ven, HttpStatus.OK);
+	}
+
+	@RequestMapping(value = "/getByName/{name}", method = RequestMethod.GET)
+	public ResponseEntity<Vendor> getVendorByName(@PathVariable("name") String name) {
+		Vendor ven1 = vs.findVendorByName(name);
+		if (ven1 == null) {
+			logger.debug("Vendor with name " + name + " does not exists");
+			return new ResponseEntity<Vendor>(HttpStatus.NOT_FOUND);
 		}
-		return "Vendor deleted successfully";
+		logger.debug("Found Vendor:: " + ven1);
+		return new ResponseEntity<Vendor>(ven1, HttpStatus.OK);
 	}
 	
-	@RequestMapping("/getByName")
-	@ResponseBody
-	public String getByName(String name){
-		String n1="";
-		try{
-			Vendor v1=vs.findByName(name);
-			n1=String.valueOf(v1.getName());
+	@RequestMapping(value = "/getByCategory/{category}", method = RequestMethod.GET)
+	public ResponseEntity<Vendor> getVendorByCategory(@PathVariable("category") String category) {
+		Vendor ven2 = vs.findByCategory(category);
+		if (ven2 == null) {
+			logger.debug("Vendor associated with category  " + category + " does not exists");
+			return new ResponseEntity<Vendor>(HttpStatus.NOT_FOUND);
 		}
-		catch(Exception exp){
-			return "Vendor Not Found";
-		}
-		return "Vendor Name= "+ n1;
+		logger.debug("Found Vendor:: " + ven2);
+		return new ResponseEntity<Vendor>(ven2, HttpStatus.OK);
 	}
-	@RequestMapping("/update/{id}")
-	@ResponseBody
-	public String updateVendor(@RequestBody Vendor ven,@PathVariable int id){
-		try{
-			ven.setId(id);
-			vs.save(ven);
+	
+	@RequestMapping(value = "/getAllVendors",method = RequestMethod.GET)
+	public ResponseEntity<List<Vendor>> getAllVendors() {
+		List<Vendor> vendors = vs.findAll();
+		if (vendors.isEmpty()) {
+			logger.debug("Vendors does not exists");
+			return new ResponseEntity<List<Vendor>>(HttpStatus.NO_CONTENT);
 		}
-		catch(Exception ex){
-			return "Error in updating vendor details";
-		}
-		return "Vendor details updated successfully";
-		
+		logger.debug("Found " + vendors.size() + " vendors");
+		logger.debug(vendors);
+		logger.debug(Arrays.toString(vendors.toArray()));
+		return new ResponseEntity<List<Vendor>>(vendors, HttpStatus.OK);
 	}
-	@RequestMapping("/")
-	public String home(){
-		return "index";
+
+	@RequestMapping(value = "/deleteById/{id}", method = RequestMethod.DELETE)
+	public ResponseEntity<Void> deleteVendor(@PathVariable("id") int id) {
+		Vendor v1 = vs.findById(id);
+		if (v1 == null) {
+			logger.debug("Vendor with id " + id + " does not exists");
+			return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+		} else {
+			vs.delete(id);
+			logger.debug("Vendor with id " + id + " deleted");
+			return new ResponseEntity<Void>(HttpStatus.GONE);
+		}
 	}
 
 }
